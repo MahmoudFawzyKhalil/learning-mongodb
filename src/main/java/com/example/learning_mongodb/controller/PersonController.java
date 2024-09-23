@@ -1,40 +1,26 @@
 package com.example.learning_mongodb.controller;
 
+import com.example.learning_mongodb.dto.CreatePersonRequest;
+import com.example.learning_mongodb.dto.ObjectIdResponse;
 import com.example.learning_mongodb.model.Person;
-import com.example.learning_mongodb.repository.PersonRepository;
+import com.example.learning_mongodb.service.PersonService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/people")
 @RequiredArgsConstructor
 public class PersonController {
-    private final PersonRepository personRepository;
-
-    // GET /people
-    @GetMapping
-    public List<Person> findAll(@RequestParam("firstName") String firstName) {
-        if (firstName == null) {
-            return personRepository.findAll();
-        }
-        List<Person> peopleByFirstName = personRepository.findByFirstName(firstName);
-        return peopleByFirstName;
-    }
+    private final PersonService personService;
 
     // POST /people
     @PostMapping
-    public Person save(@RequestBody Person person) {
-        Person saved = personRepository.save(person);
-        return saved;
-    }
-
-    // GET /people/{id}
-    @GetMapping("/{id}")
-    public Person findById(@PathVariable("id") String id) {
-        Person person = personRepository.findById(id)
-                .orElse(null);
-        return person;
+    public ObjectIdResponse save(@RequestBody CreatePersonRequest request) {
+        Person person = personService.createPerson(request.toModel());
+//        return new ObjectIdResponse(person.id());
+        return ObjectIdResponse.fromPerson(person);
     }
 }
